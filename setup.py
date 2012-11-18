@@ -6,6 +6,11 @@ from setuptools import setup
 
 import re
 
+try:
+    import multiprocessing
+except ImportError:
+    pass
+
 contracts_py = open('contracts/__init__.py').read()
 metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", contracts_py))
 docstrings = re.findall('"""(.*)"""', contracts_py)

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """
  Lambda based design by contract. Use preconditions and postconditions
  to veryify the input and output of methods. Preconditions are fired

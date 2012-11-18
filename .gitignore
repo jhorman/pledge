@@ -1,10 +1,11 @@
-venv
 *.pyc
+/*.egg-info
+/*.egg
+venv
 .*~
 *.*~
 *.pid
 /dist/
-/*.egg-info
 tags
 tmp
 .DS_Store
