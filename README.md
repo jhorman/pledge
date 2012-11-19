@@ -48,3 +48,7 @@ Contracts on member class methods are executable in subclasses via the
         @check
         def add(self, x, y):
             return x + y + y
+
+### Tests
+
+    python setup.py test
