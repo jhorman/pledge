@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import unittest
-from contracts import pre, post, check
+from pledge import pre, post, check
 
 class ContractsTestCase(unittest.TestCase):
     def test_precondition(self):

@@ -13,7 +13,7 @@ from __future__ import absolute_import
 
 __author__ = 'Jason Horman <jhorman@gmail.com>'
 __version__ = '1.0'
-__website__ = 'https://github.com/jhorman/contracts'
+__website__ = 'https://github.com/jhorman/pledge_py'
 __license__ = 'Modified BSD License'
 
 from functools import wraps
