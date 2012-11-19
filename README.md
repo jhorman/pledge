@@ -16,6 +16,7 @@ but you do have to at least add the @check decorator to "pledged" methods.
 ### Usage
 
     @pre(lambda x, y: isinstance(x, int) and isinstance(y, int))
+    @post(lambda rt: rt > 0)
     def add(x, y):
         return x + y
 
@@ -23,7 +24,6 @@ Your expressions don't need to accept all of the wrapped methods parameters.
 The library figures out which parameters to pass to the lambda.
 
     @pre(lambda x: isinstance(x, int))
-    @post(lambda rt: rt > 0)
     def add(x, y):
         return x + y
 
