@@ -176,6 +176,13 @@ def is_member_function(f):
     f_args, f_varargs, f_varkw, f_defaults = inspect.getargspec(f)
     return 1 if 'self' in f_args else 0
 
+def collection_of(cls):
+    """
+    Returns a function that checks that each element in a
+    list is of a specific type.
+    """
+    return lambda l: all(isinstance(x, cls) for x in l)
+
 def list_of(cls):
     """
     Returns a function that checks that each element in a
