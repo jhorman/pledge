@@ -88,14 +88,17 @@ def post(cond):
 
     return inner
 
-def takes(*types):
+def takes(*type_list):
     def inner(f):
         # deal with the real function, not a wrapper
         f = getattr(f, 'wrapped_fn', f)
 
         def check_condition(args, kwargs):
-            for type, arg in map(None, types, args):
-                if not isinstance(arg, type):
+            for t, arg in map(None, type_list, args):
+                if inspect.isfunction(t):
+                    if not t(arg):
+                        raise AssertionError('Precondition failure, wrong type for argument')
+                elif not isinstance(arg, t):
                     raise AssertionError('Precondition failure, wrong type for argument')
 
         # append to the rest of the postconditions attached to this method
@@ -173,3 +176,16 @@ def is_member_function(f):
     f_args, f_varargs, f_varkw, f_defaults = inspect.getargspec(f)
     return 1 if 'self' in f_args else 0
 
+def list_of(cls):
+    """
+    Returns a function that checks that each element in a
+    list is of a specific type.
+    """
+    return lambda l: isinstance(l, list) and all(isinstance(x, cls) for x in l)
+
+def set_of(cls):
+    """
+    Returns a function that checks that each element in a
+    set is of a specific type.
+    """
+    return lambda l: isinstance(l, set) and all(isinstance(x, cls) for x in l)
