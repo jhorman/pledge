@@ -16,8 +16,10 @@ __version__ = '1.0'
 __website__ = 'https://github.com/jhorman/pledge_py'
 __license__ = 'BSD'
 
+import sys, inspect
 from functools import wraps
-import inspect
+
+enabled = not sys.flags.optimize
 
 def pre(cond):
     """
@@ -30,44 +32,47 @@ def pre(cond):
     source = inspect.getsource(cond).strip()
 
     def inner(f):
-        # deal with the real function, not a wrapper
-        f = getattr(f, 'wrapped_fn', f)
+        if enabled:
+            # deal with the real function, not a wrapper
+            f = getattr(f, 'wrapped_fn', f)
 
-        # need to check if 'self' is the first arg, 
-        # since @pre doesn't want the self param
-        member_function = is_member_function(f)
+            # need to check if 'self' is the first arg,
+            # since @pre doesn't want the self param
+            member_function = is_member_function(f)
 
-        # need metadata for checking defaults
-        method_args, method_defaults = inspect.getargspec(f)[0::3]
+            # need metadata for checking defaults
+            method_args, method_defaults = inspect.getargspec(f)[0::3]
 
-        def check_condition(args, kwargs):
-            cond_kwargs = {}
+            def check_condition(args, kwargs):
+                cond_kwargs = {}
 
-            if method_defaults is not None and len(method_defaults) > 0 \
-            and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
-                args += method_defaults[len(args) - len(method_args):]
+                if method_defaults is not None and len(method_defaults) > 0 \
+                and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
+                    args += method_defaults[len(args) - len(method_args):]
 
-            # collection the args
-            for name, value in map(None, cond_args, args[member_function:]):
-                if name and value:
-                    cond_kwargs[name] = value
+                # collection the args
+                for name, value in map(None, cond_args, args[member_function:]):
+                    if name and value:
+                        cond_kwargs[name] = value
 
-            # collect the remaining kwargs
-            for name in cond_args:
-                if name not in cond_kwargs:
-                    cond_kwargs[name] = kwargs.get(name)
+                # collect the remaining kwargs
+                for name in cond_args:
+                    if name not in cond_kwargs:
+                        cond_kwargs[name] = kwargs.get(name)
 
-            # test the precondition
-            if not cond(**cond_kwargs):
-                # otherwise raise the exception
-                raise AssertionError('Precondition failure, %s' % source)
+                # test the precondition
+                if not cond(**cond_kwargs):
+                    # otherwise raise the exception
+                    raise AssertionError('Precondition failure, %s' % source)
 
-        # append to the rest of the preconditions attached to this method
-        if not hasattr(f, 'preconditions'):
-            f.preconditions = []
-        f.preconditions.append(check_condition)
+            # append to the rest of the preconditions attached to this method
+            if not hasattr(f, 'preconditions'):
+                f.preconditions = []
+            f.preconditions.append(check_condition)
 
-        return check(f)
+            return check(f)
+        else:
+            return f
 
     return inner
 
@@ -79,52 +84,58 @@ def post(cond):
     source = inspect.getsource(cond).strip()
 
     def inner(f):
-        # deal with the real function, not a wrapper
-        f = getattr(f, 'wrapped_fn', f)
+        if enabled:
+            # deal with the real function, not a wrapper
+            f = getattr(f, 'wrapped_fn', f)
 
-        def check_condition(result):
-            if not cond(result):
-                raise AssertionError('Postcondition failure, %s' % source)
+            def check_condition(result):
+                if not cond(result):
+                    raise AssertionError('Postcondition failure, %s' % source)
 
-        # append to the rest of the postconditions attached to this method
-        if not hasattr(f, 'postconditions'):
-            f.postconditions = []
-        f.postconditions.append(check_condition)
+            # append to the rest of the postconditions attached to this method
+            if not hasattr(f, 'postconditions'):
+                f.postconditions = []
+            f.postconditions.append(check_condition)
 
-        return check(f)
+            return check(f)
+        else:
+            return f
 
     return inner
 
 def takes(*type_list):
     def inner(f):
-        # deal with the real function, not a wrapper
-        f = getattr(f, 'wrapped_fn', f)
+        if enabled:
+            # deal with the real function, not a wrapper
+            f = getattr(f, 'wrapped_fn', f)
 
-        # need to check if 'self' is the first arg,
-        # since @pre doesn't want the self param
-        member_function = is_member_function(f)
+            # need to check if 'self' is the first arg,
+            # since @pre doesn't want the self param
+            member_function = is_member_function(f)
 
-        # need metadata for defaults check
-        method_args, method_defaults = inspect.getargspec(f)[0::3]
+            # need metadata for defaults check
+            method_args, method_defaults = inspect.getargspec(f)[0::3]
 
-        def check_condition(args, kwargs):
-            if method_defaults is not None and len(method_defaults) > 0 \
-            and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
-                args += method_defaults[len(args) - len(method_args):]
+            def check_condition(args, kwargs):
+                if method_defaults is not None and len(method_defaults) > 0 \
+                and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
+                    args += method_defaults[len(args) - len(method_args):]
 
-            for t, arg in map(None, type_list, args[member_function:]):
-                if inspect.isfunction(t):
-                    if not t(arg):
+                for t, arg in map(None, type_list, args[member_function:]):
+                    if inspect.isfunction(t):
+                        if not t(arg):
+                            raise AssertionError('Precondition failure, wrong type for argument')
+                    elif not isinstance(arg, t):
                         raise AssertionError('Precondition failure, wrong type for argument')
-                elif not isinstance(arg, t):
-                    raise AssertionError('Precondition failure, wrong type for argument')
 
-        # append to the rest of the postconditions attached to this method
-        if not hasattr(f, 'preconditions'):
-            f.preconditions = []
-        f.preconditions.append(check_condition)
+            # append to the rest of the postconditions attached to this method
+            if not hasattr(f, 'preconditions'):
+                f.preconditions = []
+            f.preconditions.append(check_condition)
 
-        return check(f)
+            return check(f)
+        else:
+            return f
 
     return inner
 

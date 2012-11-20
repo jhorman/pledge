@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 from pledge import pre, post, check, takes, list_of
+import pledge
 
 class ContractsTestCase(unittest.TestCase):
     def test_precondition(self):
@@ -99,7 +100,6 @@ class ContractsTestCase(unittest.TestCase):
         t.add(10, 11)
         self.assertRaises(AssertionError, lambda: t.add(10, ''))
 
-
     def test_list_of(self):
         @takes(list_of(int))
         def add(x):
@@ -125,7 +125,18 @@ class ContractsTestCase(unittest.TestCase):
         add()
         self.assertRaises(AssertionError, lambda: add(''))
 
-class FakeClass(object):
-    def get_number(self):
-        return 10
 
+    def test_disabled(self):
+        pledge.enabled = False
+
+        try:
+            @takes(int, int)
+            def add(x, y):
+                return "%s,%s" % (x, y)
+
+            add(10, 11)
+            add('', '')
+            add('', 10)
+            add(10, 10)
+        finally:
+            pledge.enabled = True
