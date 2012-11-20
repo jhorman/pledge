@@ -135,8 +135,7 @@ class ContractsTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: add(''))
 
     def test_kwargs_and_none(self):
-        @        @takes(int, (int, None))
-takes(int, (int, None))
+        @takes(int, (int, None))
         def add(x, y=None):
             if y:
                 return x+y
