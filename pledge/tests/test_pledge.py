@@ -90,6 +90,16 @@ class ContractsTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: add('', 10))
         self.assertRaises(AssertionError, lambda: add(10, 10))
 
+        class Test(object):
+            @takes(int, int)
+            def add(self, x, y):
+                return x + y
+
+        t = Test()
+        t.add(10, 11)
+        self.assertRaises(AssertionError, lambda: t.add(10, ''))
+
+
     def test_list_of(self):
         @takes(list_of(int))
         def add(x):

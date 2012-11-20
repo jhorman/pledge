@@ -99,6 +99,12 @@ def takes(*type_list):
     def inner(f):
         # deal with the real function, not a wrapper
         f = getattr(f, 'wrapped_fn', f)
+
+        # need to check if 'self' is the first arg,
+        # since @pre doesn't want the self param
+        member_function = is_member_function(f)
+
+        # need metadata for defaults check
         method_args, method_defaults = inspect.getargspec(f)[0::3]
 
         def check_condition(args, kwargs):
@@ -106,7 +112,7 @@ def takes(*type_list):
             and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
                 args += method_defaults[len(args) - len(method_args):]
 
-            for t, arg in map(None, type_list, args):
+            for t, arg in map(None, type_list, args[member_function:]):
                 if inspect.isfunction(t):
                     if not t(arg):
                         raise AssertionError('Precondition failure, wrong type for argument')
