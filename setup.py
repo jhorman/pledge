@@ -30,7 +30,6 @@ AUTHOR, EMAIL = re.match(r'(.*) <(.*)>', AUTHOR_EMAIL).groups()
 setup(name='pledge',
     version=VERSION,
     description=DESCRIPTION,
-    long_description=open('README.md').read(),
     keywords='dbc contract lambda testing',
     author=AUTHOR,
     author_email=EMAIL,
