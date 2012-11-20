@@ -122,10 +122,12 @@ def takes(*type_list):
                     args += method_defaults[len(args) - len(method_args):]
 
                 for arg, t in zip(args[member_function:], type_list):
-                    check_type(t, arg)
+                    if not check_type(t, arg):
+                        raise AssertionError('Precondition failure, wrong type for argument')
 
                 for kwarg in kwargs:
-                    check_type(type_list[method_args.index(kwarg)], kwargs.get(kwarg))
+                    if not check_type(type_list[method_args.index(kwarg)], kwargs.get(kwarg)):
+                        raise AssertionError('Precondition failure, wrong type for argument %s' % kwarg)
 
             # append to the rest of the postconditions attached to this method
             if not hasattr(f, 'preconditions'):
@@ -139,11 +141,17 @@ def takes(*type_list):
     return inner
 
 def check_type(t, val):
-    if inspect.isfunction(t):
-        if not t(val):
-            raise AssertionError('Precondition failure, wrong type for argument')
-    elif not isinstance(val, t):
-        raise AssertionError('Precondition failure, wrong type for argument')
+    if t is None:
+        return val is None
+    elif inspect.isfunction(t):
+        return t(val)
+    elif isinstance(t, tuple):
+        for subt in t:
+            if check_type(subt, val):
+                return True
+        return False
+    else:
+        return isinstance(val, t) if val is not None else False
 
 def check(f):
     """

@@ -134,6 +134,14 @@ class ContractsTestCase(unittest.TestCase):
         add()
         self.assertRaises(AssertionError, lambda: add(''))
 
+    def test_kwargs_and_none(self):
+        @takes(int, (int, None))
+        def add(x, y=None):
+            if y:
+                return x+y
+            return x
+
+        self.assertEqual(1, add(1))
 
     def test_disabled(self):
         pledge.enabled = False
