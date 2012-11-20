@@ -121,9 +121,10 @@ def takes(*type_list):
 
             # need metadata for defaults check
             method_args, method_defaults = inspect.getargspec(f)[0::3]
+            if member_function:
+                method_args = method_args[member_function:]
 
             def check_condition(args, kwargs):
-                all_args = {}
                 if method_defaults is not None and len(method_defaults) > 0 \
                 and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
                     args += method_defaults[len(args) - len(method_args):]
