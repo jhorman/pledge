@@ -3,6 +3,7 @@ pledge
 
 Simple decorator based design by contract (DBC) for Python. Loosley based
 on the open source [decontractors](https://github.com/thp/python-decontractors).
+Some ideas are also lifted from [Method signature checking decorators](http://code.activestate.com/recipes/426123-method-signature-checking-decorators/).
 
 There are a number of open source projects that embed DBC contracts in pydoc,
 or in decorators but with an alternate eval'd syntax. pledge describes contracts
