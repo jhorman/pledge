@@ -129,13 +129,17 @@ def takes(*type_list):
                 and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
                     args += method_defaults[len(args) - len(method_args):]
 
-                for arg, t in zip(args[member_function:], type_list):
-                    if not check_type(t, arg):
+                for i, (arg, t) in enumerate(zip(args[member_function:], type_list)):
+                    method_arg = method_args[i]
+                    if method_arg not in kwargs and not check_type(t, arg):
                         raise AssertionError('Precondition failure, wrong type for argument')
 
                 for kwarg in kwargs:
-                    if not check_type(type_list[method_args.index(kwarg)], kwargs.get(kwarg)):
-                        raise AssertionError('Precondition failure, wrong type for argument %s' % kwarg)
+                    arg_position = method_args.index(kwarg)
+                    if arg_position < len(type_list):
+                        t = type_list[arg_position]
+                        if not check_type(t, kwargs.get(kwarg)):
+                            raise AssertionError('Precondition failure, wrong type for argument %s' % kwarg)
 
             # append to the rest of the postconditions attached to this method
             if not hasattr(f, 'preconditions'):
