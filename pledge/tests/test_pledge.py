@@ -87,6 +87,7 @@ class ContractsTestCase(unittest.TestCase):
             return "%s,%s" % (x, y)
 
         add(10, '')
+        add(10, y='')
         self.assertRaises(AssertionError, lambda: add('', ''))
         self.assertRaises(AssertionError, lambda: add('', 10))
         self.assertRaises(AssertionError, lambda: add(10, 10))
@@ -111,12 +112,20 @@ class ContractsTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: add(['', 10]))
 
     def test_defaults(self):
-        @takes(int)
-        def add(x=10):
-            return x
+        @takes(int, int, int)
+        def add(x, y=10, z=11):
+            return x+y+z
 
-        add()
+        self.assertEqual(22, add(1))
+        self.assertEqual(14, add(1, 2))
+        self.assertEqual(6, add(1, 2, 3))
+        self.assertEqual(14, add(1, y=2))
+        self.assertEqual(13, add(1, z=2))
         self.assertRaises(AssertionError, lambda: add(''))
+        self.assertRaises(AssertionError, lambda: add(10, ''))
+        self.assertRaises(AssertionError, lambda: add(10, 11, ''))
+        self.assertRaises(AssertionError, lambda: add(10, 11, z=''))
+        self.assertRaises(AssertionError, lambda: add(10, y=''))
 
         @pre(lambda x: isinstance(x, int))
         def add(x=10):

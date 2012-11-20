@@ -51,9 +51,8 @@ def pre(cond):
                     args += method_defaults[len(args) - len(method_args):]
 
                 # collection the args
-                for name, value in map(None, cond_args, args[member_function:]):
-                    if name and value:
-                        cond_kwargs[name] = value
+                for name, value in zip(cond_args, args[member_function:]):
+                    cond_kwargs[name] = value
 
                 # collect the remaining kwargs
                 for name in cond_args:
@@ -117,16 +116,16 @@ def takes(*type_list):
             method_args, method_defaults = inspect.getargspec(f)[0::3]
 
             def check_condition(args, kwargs):
+                all_args = {}
                 if method_defaults is not None and len(method_defaults) > 0 \
                 and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
                     args += method_defaults[len(args) - len(method_args):]
 
-                for t, arg in map(None, type_list, args[member_function:]):
-                    if inspect.isfunction(t):
-                        if not t(arg):
-                            raise AssertionError('Precondition failure, wrong type for argument')
-                    elif not isinstance(arg, t):
-                        raise AssertionError('Precondition failure, wrong type for argument')
+                for arg, t in zip(args[member_function:], type_list):
+                    check_type(t, arg)
+
+                for kwarg in kwargs:
+                    check_type(type_list[method_args.index(kwarg)], kwargs.get(kwarg))
 
             # append to the rest of the postconditions attached to this method
             if not hasattr(f, 'preconditions'):
@@ -138,6 +137,13 @@ def takes(*type_list):
             return f
 
     return inner
+
+def check_type(t, val):
+    if inspect.isfunction(t):
+        if not t(val):
+            raise AssertionError('Precondition failure, wrong type for argument')
+    elif not isinstance(val, t):
+        raise AssertionError('Precondition failure, wrong type for argument')
 
 def check(f):
     """
