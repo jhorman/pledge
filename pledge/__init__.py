@@ -37,8 +37,15 @@ def pre(cond):
         # since @pre doesn't want the self param
         member_function = is_member_function(f)
 
+        # need metadata for checking defaults
+        method_args, method_defaults = inspect.getargspec(f)[0::3]
+
         def check_condition(args, kwargs):
             cond_kwargs = {}
+
+            if method_defaults is not None and len(method_defaults) > 0 \
+            and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
+                args += method_defaults[len(args) - len(method_args):]
 
             # collection the args
             for name, value in map(None, cond_args, args[member_function:]):
@@ -92,8 +99,13 @@ def takes(*type_list):
     def inner(f):
         # deal with the real function, not a wrapper
         f = getattr(f, 'wrapped_fn', f)
+        method_args, method_defaults = inspect.getargspec(f)[0::3]
 
         def check_condition(args, kwargs):
+            if method_defaults is not None and len(method_defaults) > 0 \
+            and len(method_args) - len(method_defaults) <= len(args) < len(method_args):
+                args += method_defaults[len(args) - len(method_args):]
+
             for t, arg in map(None, type_list, args):
                 if inspect.isfunction(t):
                     if not t(arg):
@@ -109,7 +121,6 @@ def takes(*type_list):
         return check(f)
 
     return inner
-
 
 def check(f):
     """

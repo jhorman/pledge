@@ -100,6 +100,21 @@ class ContractsTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: add([10, '']))
         self.assertRaises(AssertionError, lambda: add(['', 10]))
 
+    def test_defaults(self):
+        @takes(int)
+        def add(x=10):
+            return x
+
+        add()
+        self.assertRaises(AssertionError, lambda: add(''))
+
+        @pre(lambda x: isinstance(x, int))
+        def add(x=10):
+            return x
+
+        add()
+        self.assertRaises(AssertionError, lambda: add(''))
+
 class FakeClass(object):
     def get_number(self):
         return 10
