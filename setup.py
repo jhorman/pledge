@@ -15,21 +15,19 @@ except ImportError:
 
 pledge_py = open('pledge/__init__.py').read()
 metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", pledge_py))
-docstrings = re.findall('"""(.*)"""', pledge_py)
 
 # Metadata fields extracted from decontractors.py
 AUTHOR_EMAIL = metadata['author']
 VERSION = metadata['version']
 WEBSITE = metadata['website']
 LICENSE = metadata['license']
-DESCRIPTION = docstrings[0]
 
 # Extract name and e-mail ("Firstname Lastname <mail@example.org>")
 AUTHOR, EMAIL = re.match(r'(.*) <(.*)>', AUTHOR_EMAIL).groups()
 
 setup(name='pledge',
     version=VERSION,
-    description=DESCRIPTION,
+    description='Lambda based design by contract (dbc)',
     keywords='dbc contract lambda testing',
     author=AUTHOR,
     author_email=EMAIL,
