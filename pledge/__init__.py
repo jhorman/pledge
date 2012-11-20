@@ -103,6 +103,13 @@ def post(cond):
     return inner
 
 def takes(*type_list):
+    """
+    Decorates a function with type checks. Examples
+
+    @takes(int): take an int as the first param
+    @takes(int, str): take and int as first, string as 2nd
+    @takes(int, (int, None)): take an int as first, and an int or None as second
+    """
     def inner(f):
         if enabled:
             # deal with the real function, not a wrapper
