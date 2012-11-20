@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import unittest
-from pledge import pre, post, check
+from pledge import pre, post, check, takes
 
 class ContractsTestCase(unittest.TestCase):
     def test_precondition(self):
@@ -79,6 +79,16 @@ class ContractsTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: t.add(10, -10))
         self.assertRaises(AssertionError, lambda: t.add('', -10))
         self.assertRaises(AssertionError, lambda: t.add(10, ''))
+
+    def test_takes(self):
+        @takes(int, basestring)
+        def add(x, y):
+            return "%s,%s" % (x, y)
+
+        add(10, '')
+        self.assertRaises(AssertionError, lambda: add('', ''))
+        self.assertRaises(AssertionError, lambda: add('', 10))
+        self.assertRaises(AssertionError, lambda: add(10, 10))
 
 class FakeClass(object):
     def get_number(self):

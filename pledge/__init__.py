@@ -88,9 +88,29 @@ def post(cond):
 
     return inner
 
+def takes(*types):
+    def inner(f):
+        # deal with the real function, not a wrapper
+        f = getattr(f, 'wrapped_fn', f)
+
+        def check_condition(args, kwargs):
+            for type, arg in map(None, types, args):
+                if not isinstance(arg, type):
+                    raise AssertionError('Precondition failure, wrong type for argument')
+
+        # append to the rest of the postconditions attached to this method
+        if not hasattr(f, 'preconditions'):
+            f.preconditions = []
+        f.preconditions.append(check_condition)
+
+        return check(f)
+
+    return inner
+
+
 def check(f):
     """
-    Wraps the function with a decorator that runs all of the 
+    Wraps the function with a decorator that runs all of the
     pre/post conditions.
     """
     if hasattr(f, 'wrapped_fn'):
