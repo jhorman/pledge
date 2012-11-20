@@ -21,6 +21,26 @@ but you do have to at least add the @check decorator to "pledged" methods.
     def add(x, y):
         return x + y
 
+Shorthand for type checking.
+
+    @takes(int, int)
+    @returns(int)
+    def add(x, y):
+        return x+y
+        
+    @takes(list_of(int))
+    def add(x):
+        return x
+
+    @takes(int, (int, None), (int, None))
+    def add(x, y=None, z=None):
+        total = x
+        if y:
+            total += y
+        if z:
+            total += z
+        return total
+
 Your expressions don't need to accept all of the wrapped methods parameters.
 The library figures out which parameters to pass to the lambda.
 
