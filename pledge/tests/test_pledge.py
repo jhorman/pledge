@@ -136,6 +136,17 @@ class ContractsTestCase(unittest.TestCase):
         add()
         self.assertRaises(AssertionError, lambda: add(''))
 
+    def test_returns(self):
+        @pledge.returns(int)
+        def add(x, y):
+            if y == 12:
+                return ''
+            else:
+                return x+y
+
+        add(10, 11)
+        self.assertRaises(AssertionError, lambda: add(10, 12))
+
     def test_kwargs_and_none(self):
         @takes(int, (int, None), (int, None))
         def add(x, y=None, z=None):

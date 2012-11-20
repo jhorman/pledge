@@ -152,6 +152,9 @@ def takes(*type_list):
 
     return inner
 
+def returns(t):
+    return post(lambda value: check_type(t, value))
+
 def check_type(t, val):
     if t is None:
         return val is None
