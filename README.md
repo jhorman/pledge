@@ -73,3 +73,15 @@ Contracts on member class methods are executable in subclasses via the
 ### Tests
 
     python setup.py test
+
+### Enable/Disable checks
+
+To turn off all checks set
+
+    pledge.enabled=False
+
+The default value of pledge.enabled is
+
+    enabled = not sys.flags.optimize
+
+So running python with -O will also disable checks.
